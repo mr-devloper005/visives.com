@@ -8,29 +8,27 @@ export const globalContent = {
     baseUrl: slot4BrandConfig.baseUrl,
   },
   nav: {
-    tagline: 'Independent reading platform',
+    tagline: 'Local listings & classifieds',
     primaryLinks: [
-      { label: 'Articles', href: '/articles' },
-      { label: 'Visuals', href: '/image-sharing' },
-      { label: 'Listings', href: '/listings' },
+      { label: 'Business Listings', href: '/listing' },
+      { label: 'Classifieds', href: '/classified' },
+      { label: 'About', href: '/about' },
       { label: 'Contact', href: '/contact' },
     ],
     actions: {
-      primary: { label: 'Start exploring', href: '/' },
-      secondary: { label: 'Submit', href: '/contact' },
+      primary: { label: 'Browse listings', href: '/listing' },
+      secondary: { label: 'Post an ad', href: '/create' },
     },
   },
   footer: {
-    tagline: 'Stories, resources, and discoverable posts',
-    description: 'A connected publishing surface for articles, visuals, listings, profiles, bookmarks, and downloadable resources.',
+    tagline: 'Local listings and classifieds',
+    description: 'A connected marketplace for business listings and local classifieds — browse what is nearby, or post your own in minutes.',
     columns: [
       {
         title: 'Explore',
         links: [
-          { label: 'Articles', href: '/articles' },
-          { label: 'Listings', href: '/listings' },
-          { label: 'Images', href: '/image-sharing' },
-          { label: 'PDF Library', href: '/pdf' },
+          { label: 'Business Listings', href: '/listing' },
+          { label: 'Classifieds', href: '/classified' },
         ],
       },
       {
@@ -41,7 +39,7 @@ export const globalContent = {
         ],
       },
     ],
-    bottomNote: 'Built for clean discovery and connected publishing.',
+    bottomNote: 'Built for clean local discovery.',
   },
   commonLabels: {
     readMore: 'Read more',
