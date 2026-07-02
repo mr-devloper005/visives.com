@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ArrowLeft, ArrowUpRight, Bookmark, Building2, Camera, CheckCircle2, Download, ExternalLink, FileText, Globe2, Mail, MapPin, Phone, Star, Tag, UserRound } from 'lucide-react'
+import { ArrowLeft, Bookmark, Building2, Camera, CheckCircle2, Download, ExternalLink, FileText, Globe2, Mail, MapPin, Phone, Star, Tag, UserRound } from 'lucide-react'
 import { buildPostMetadata, buildTaskMetadata } from '@/lib/seo'
 import { fetchArticleComments, fetchTaskPostBySlug, fetchTaskPosts } from '@/lib/task-data'
 import { getTaskConfig, SITE_CONFIG, type TaskKey } from '@/lib/site-config'
@@ -8,6 +8,7 @@ import type { SitePost } from '@/lib/site-connector'
 import { EditableSiteShell } from '@/editable/shell/EditableSiteShell'
 import { EditableArticleComments } from '@/editable/components/EditableArticleComments'
 import { getTaskTheme, taskThemeStyle } from '@/editable/theme/task-themes'
+import { Ads } from '@/lib/ads'
 
 export const revalidate = 3
 
@@ -181,10 +182,13 @@ function Kicker({ task, children }: { task: TaskKey; children: React.ReactNode }
 }
 
 function BackLink({ task }: { task: TaskKey }) {
-  const taskConfig = getTaskConfig(task)
+  // Back-navigation from a post detail always returns to the home page. The
+  // archive routes (`/listing`, `/classified`) are intentionally never linked
+  // from user-facing UI; keeping the `task` parameter preserves the API.
+  void task
   return (
-    <Link href={taskConfig?.route || '/'} className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--tk-muted)] transition hover:text-[var(--tk-text)]">
-      <ArrowLeft className="h-4 w-4" /> Back to {taskConfig?.label || 'posts'}
+    <Link href="/" className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--tk-muted)] transition hover:text-[var(--tk-text)]">
+      <ArrowLeft className="h-4 w-4" /> Back to home
     </Link>
   )
 }
@@ -203,6 +207,9 @@ function ArticleDetail({ post, related, comments }: { post: SitePost; related: S
         </div>
         {images[0] ? <img src={images[0]} alt="" className="mt-10 aspect-[16/9] w-full rounded-[var(--tk-radius)] border border-[var(--tk-line)] object-cover" /> : null}
         <BodyContent post={post} />
+        <div className="mx-auto max-w-6xl px-4 py-6">
+          <Ads slot="article-bottom" showLabel eager className="mx-auto w-full" />
+        </div>
         <EditableArticleComments slug={post.slug} comments={comments} />
       </article>
       <RelatedStrip task="article" related={related} />
@@ -243,6 +250,7 @@ function ListingDetail({ post, related }: { post: SitePost; related: SitePost[] 
         <aside className="space-y-6 lg:sticky lg:top-24 lg:self-start">
           {mapSrc ? <MapBox src={mapSrc} label={address || post.title} /> : null}
           <ContactAction website={website} phone={phone} email={email} />
+          <Ads slot="sidebar" showLabel eager className="mx-auto w-full" />
           <RelatedPanel task="listing" post={post} related={related} />
         </aside>
       </div>
@@ -404,6 +412,9 @@ function ProfileDetail({ post, related }: { post: SitePost; related: SitePost[] 
               <DetailMeta post={post} center />
               <ContactAction website={website} email={email} bare />
             </div>
+            <div className="mt-6">
+              <Ads slot="sidebar" showLabel eager className="mx-auto w-full" />
+            </div>
           </aside>
           <article className="min-w-0">
             <Kicker task="profile">Profile</Kicker>
@@ -494,7 +505,7 @@ function BadgeLine({ label, value }: { label: string; value: string }) {
   )
 }
 
-function RelatedPanel({ task, post, related }: { task: TaskKey; post: SitePost; related: SitePost[] }) {
+function RelatedPanel({ task, post: _post, related }: { task: TaskKey; post: SitePost; related: SitePost[] }) {
   const taskConfig = getTaskConfig(task)
   return (
     <div className="space-y-6">
@@ -507,10 +518,7 @@ function RelatedPanel({ task, post, related }: { task: TaskKey; post: SitePost; 
       </div>
       {related.length ? (
         <div className="rounded-[var(--tk-radius)] border border-[var(--tk-line)] bg-[var(--tk-surface)] p-6">
-          <div className="flex items-center justify-between gap-3">
-            <h2 className="editable-display text-lg font-semibold tracking-[-0.02em]">More like this</h2>
-            <Link href={taskConfig?.route || '/'} className="text-xs font-medium uppercase tracking-[0.14em] text-[var(--tk-accent)]">View all</Link>
-          </div>
+          <h2 className="editable-display text-lg font-semibold tracking-[-0.02em]">More like this</h2>
           <div className="mt-5 grid gap-3">
             {related.map((item) => <RelatedCard key={item.id || item.slug} task={task} post={item} />)}
           </div>
@@ -522,14 +530,10 @@ function RelatedPanel({ task, post, related }: { task: TaskKey; post: SitePost; 
 
 function RelatedStrip({ task, related }: { task: TaskKey; related: SitePost[] }) {
   if (!related.length) return null
-  const taskConfig = getTaskConfig(task)
   return (
     <section className="border-t border-[var(--tk-line)]">
       <div className="mx-auto max-w-[var(--editable-container)] px-6 py-14 sm:py-16 lg:px-8">
-        <div className="flex items-center justify-between">
-          <h2 className="editable-display text-2xl font-semibold tracking-[-0.02em]">More {(taskConfig?.label || 'posts').toLowerCase()}</h2>
-          <Link href={taskConfig?.route || '/'} className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--tk-accent)]">View all <ArrowUpRight className="h-4 w-4" /></Link>
-        </div>
+        <h2 className="editable-display text-2xl font-semibold tracking-[-0.02em]">More like this</h2>
         <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {related.map((item) => <RelatedCard key={item.id || item.slug} task={task} post={item} grid />)}
         </div>
